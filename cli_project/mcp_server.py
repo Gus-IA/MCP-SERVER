@@ -42,9 +42,16 @@ def edit_document(
     return docs[doc_id]
 
 
-@mcp.resource("docs://documents")
-def list_documents():
-    return "\n".join(docs.keys())
+@mcp.resource("docs://documents", mime_type="application/json")
+def list_docs():
+    return list(docs.keys())
+
+
+@mcp.resource("docs://documents/{doc_id}", mime_type="text/plain")
+def fetch_doc(doc_id: str) -> str:
+    if doc_id not in docs:
+        raise ValueError(f"Document {doc_id} not found")
+    return docs[doc_id]
 
 
 if __name__ == "__main__":

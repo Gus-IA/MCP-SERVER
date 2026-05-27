@@ -5,6 +5,8 @@ from typing import Optional, Any
 from contextlib import AsyncExitStack
 from mcp import ClientSession, StdioServerParameters, types
 from mcp.client.stdio import stdio_client
+import json
+from pydantic import AnyUrl
 
 
 class MCPClient:
@@ -63,12 +65,14 @@ class MCPClient:
         return list(result.messages)
 
     async def read_resource(self, uri: str) -> Any:
-        result = await self.session().read_resource(uri)  # type: ignore[arg-type]
-        contents = list(result.contents)
-        # Common FastMCP resources return a single text payload; make that ergonomic.
-        if len(contents) == 1 and hasattr(contents[0], "text"):
-            return getattr(contents[0], "text")
-        return contents
+        result = await self.session().read_resource(AnyUrl(uri))
+        resource = result.contents[0]
+
+        if isinstance(resource, types.TextResourceContents):
+            if resource.mimeType == "application/json":
+                return json.loads(resource.text)
+
+            return resource.text
 
     async def cleanup(self):
         await self._exit_stack.aclose()
