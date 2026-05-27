@@ -23,13 +23,16 @@ def read_document(doc_id: str = Field(description="Id of the document to read"))
         raise ValueError(f"Document {doc_id} not found")
     return docs[doc_id]
 
+
 @mcp.tool(
     name="edit_document",
     description="Edit a document by replacing a string in the documents content with a new string",
 )
 def edit_document(
     doc_id: str = Field(description="Id of the document that will be edited"),
-    old_str: str = Field(description="The text to replace. Must match exactly, including whitespace"),
+    old_str: str = Field(
+        description="The text to replace. Must match exactly, including whitespace"
+    ),
     new_str: str = Field(description="The new text to insert in place of the old text"),
 ):
     if doc_id not in docs:
@@ -37,3 +40,12 @@ def edit_document(
 
     docs[doc_id] = docs[doc_id].replace(old_str, new_str)
     return docs[doc_id]
+
+
+@mcp.resource("docs://documents")
+def list_documents():
+    return "\n".join(docs.keys())
+
+
+if __name__ == "__main__":
+    mcp.run()

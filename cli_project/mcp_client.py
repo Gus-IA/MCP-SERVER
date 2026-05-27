@@ -47,7 +47,7 @@ class MCPClient:
 
     async def list_tools(self) -> list[types.Tool]:
         result = await self.session().list_tools()
-        return list(result.tools)
+        return result.tools
 
     async def call_tool(
         self, tool_name: str, tool_input: dict
@@ -89,7 +89,8 @@ async def main():
         command="uv",
         args=["run", "mcp_server.py"],
     ) as _client:
-        pass
+        result = await _client.list_tools()
+        print(result)
 
 
 if __name__ == "__main__":
